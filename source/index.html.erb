@@ -1,0 +1,67 @@
+---
+title: Jadwal Sholat Jakarta Indonesia
+---
+
+<div class="mui--text-display4" style="text-align: center;">
+  <h1>Jadwal Shalat di Jakarta, Indonesia<h1>
+  <p id="js-date">Loading...</p>
+  <p id="js-time"></p>
+</div>
+<div class="mui-divider"></div>
+<div class="mui-row">
+  <div class="mui-col-md-4 mui-col-md-offset-4">
+    <div id="js-pray-times-table" class="mui--text-display2"></div>
+  </div>
+</div>
+
+<%= javascript_include_tag "praytimes" %>
+<script type="text/javascript">
+  function calculateTimes(fullDate) {
+    prayTimes.adjust({fajr:20,dhuhr:'2 min',maghrib:1,isha:18});
+    prayTimes.tune({fajr:2,sunrise:-2,asr:2,maghrib:2,isha:2});
+
+    var date = new Date(fullDate); // today
+    // var times = prayTimes.getTimes(date, [-6.2276252, 106.7947417], 7, 0, '24h');
+    var times = prayTimes.getTimes(date, [-6.1744444, 106.8294444], 7, 0, '24h');
+    var labels = ['Subuh', 'Terbit', 'Zhuhur', 'Ashar', 'Maghrib', 'Isya', 'Tengah Malam'];
+    var list = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha', 'Midnight'];
+
+    var html = '<table class="mui-table">';
+    for(var i in list)	{
+      html += '<tr><td>'+ labels[i]+ '</td>';
+      html += '<td>'+ times[list[i].toLowerCase()]+ '</td></tr>';
+    }
+    html += '</table>';
+    document.getElementById('js-pray-times-table').innerHTML = html;
+  }
+
+  var url = 'https://script.googleusercontent.com/macros/echo?user_content_key=uxKP_OZHX7Pxnwlmc0GNcDENs3vVe-ShesEnP1YemcoXYYp_n9qNtCO6cwQeVgG8BVEadtvklY4g84B5rdCg3ji0A3VG1xhvm5_BxDlH2jW0nuo2oDemN9CCS2h10ox_1xSncGQajx_ryfhECjZEnJ9GRkcRevgjTvo8Dc32iw_BLJPcPfRdVKhJT5HNzQuXEeN3QFwl2n0M6ZmO-h7C6bwVq0tbM60-rtQANsiaBhAR1tS9NPqn5A&lib=MwxUjRcLr2qLlnVOLh12wSNkqcO1Ikdrk';
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+
+  request.onload = function() {
+    if (request.status >= 200 && request.status < 400) {
+      var data = JSON.parse(request.responseText);
+      var minutes = data.minutes;
+
+      if (minutes < 10) {
+        minutes = '0' + minutes;
+      }
+
+      document.getElementById('js-date').innerHTML = 'Tanggal: ' + data.day + '-' + data.month + '-' + data.year;
+      document.getElementById('js-time').innerHTML = 'Jam: ' + data.hours+ ':' + minutes;
+      calculateTimes(data.fulldate);
+    } else {
+      console.log('error :(');
+    }
+  };
+
+  request.onerror = function() {
+    // There was a connection error of some sort
+  };
+
+  request.send();
+
+
+</script>
+
